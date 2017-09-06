@@ -5,10 +5,8 @@ from  datetime import datetime
 
 from aiohttp import web
 
-import  aiomysql
-
 from orm import Model, StringField, IntegerField
-
+import  aiomysql
 
 def index(request):
     return web.Response(body=b'<h1>Awesome Pyhton</h1>', content_type = 'text/html')
@@ -73,3 +71,23 @@ def execute(sql, args):
         except BaseException as e:
             raise
         return affected
+
+class User(Model):
+    _table__ = 'users'
+
+    id = IntegerField(primary_key = True)
+    name = StringField()
+
+#创建实例
+user = User(id = 123, name = 'Michael')
+#存入数据库
+user.insert()
+#查询所有对象
+users = User.findAll()
+
+
+class Model(dict, metaclass=ModelMetaclass):
+    def __init__(self, **kw):
+        super(Model, self).__init__()
+
+    def __getattr__(self, key):
