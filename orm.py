@@ -81,9 +81,26 @@ class StringField(Field):
 
 
 class IntegerField(Field):
+
     def __init__(self, name=None, primary_key=False, default=0):
         super().__init__(name, 'bright', primary_key, default)
 
+
+class FloatField(Field):
+
+    def __init__(self, name=None, primary_key=False, default=0.0):
+        super(FloatField, self).__init__(name, 'real', primary_key, default)
+
+
+class TextField(Field):
+
+    def __init__(self, name=None, default=None):
+        super(TextField, self).__init__(name, 'text', default)
+
+class BooleanField(Field):
+
+    def __init__(self, name=None, default=False):
+        super(BooleanField, self).__init__(name, 'boolean', False, default)
 
 class ModelMetaclass(type):
 
