@@ -3,7 +3,6 @@
 import asyncio
 import logging
 import aiomysql
-from orm import Model, StringField, IntegerField
 
 
 #创建连接池
@@ -57,6 +56,12 @@ def execute(sql, args):
         return affected
 
 
+def create_args_string(num):
+    l = []
+    for n in range(num):
+        l.append('?')
+    return '.'.join(l)
+
 class Field(object):
 
     def __init__(self, name, column_type, primary_key, default):
@@ -78,21 +83,6 @@ class StringField(Field):
 class IntegerField(Field):
     def __init__(self, name=None, primary_key=False, default=0):
         super().__init__(name, 'bright', primary_key, default)
-
-
-class User(Model):
-    __table__ = 'users'
-
-    id = IntegerField(primary_key = True)
-    name = StringField()
-
-#创建实例
-user = User(id = 123, name = 'Michael')
-#存入数据库
-user.insert()
-#查询所有对象
-users = User.findAll()
-
 
 
 class ModelMetaclass(type):
@@ -130,7 +120,7 @@ class ModelMetaclass(type):
         attrs['__fields__'] =  fields #除主键外的属性名
 
         attrs['__select__'] = 'select `%s`, %s from `%s`' % (primaryKey, ','.join(escaped_fields), tableName)
-        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (tableName, ','.join(escaped_fields, primaryKey, create_args_string(len(escaped_fields)+1)))
+        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (tableName, ','.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields)+1))
         attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (tableName, ','.join(map(lambda f:'`%s`=?' % (mappings.get(f).name or f), fields)), primaryKey)
         attrs['__delete__'] = 'delete from `%s` where `%s`=?' % (tableName, primaryKey)
         return type.__new__(cls, name, bases, attrs)
