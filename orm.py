@@ -8,7 +8,7 @@ import aiomysql
 #创建连接池
 @asyncio.coroutine
 def create_pool(loop, **kw):
-    logging.info('create database connecion pool...')
+    logging.info('create database connection pool...')
     global __pool
     if __name__ == '__main__':
         __pool = yield from aiomysql.create_pool(
@@ -95,7 +95,7 @@ class FloatField(Field):
 class TextField(Field):
 
     def __init__(self, name=None, default=None):
-        super(TextField, self).__init__(name, 'text', default)
+        super(TextField, self).__init__(name, 'text',False, default)
 
 class BooleanField(Field):
 
