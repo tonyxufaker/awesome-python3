@@ -5,8 +5,7 @@ from  datetime import datetime
 
 from aiohttp import web
 
-from orm import Model, StringField, IntegerField
-import  aiomysql
+
 
 def index(request):
     return web.Response(body=b'<h1>Awesome Pyhton</h1>', content_type = 'text/html')
@@ -23,71 +22,3 @@ def init(loop):
 loop = asyncio.get_event_loop()
 loop.run_until_complete(init(loop))
 loop.run_forever()
-
-
-@asyncio.coroutine
-def create_pool(loop, **kw):
-    logging.info('create database connecting pool...')
-    global _pool
-    if __name__ == '__main__':
-        _pool = yield from aiomysql.create_pool(
-            host=kw.get('host', 'localhost'),
-            port=kw.get('port', 3306),
-            user=kw['user'],
-            password=kw['password'],
-            db=kw['db'],
-            charest=kw.get('charset', 'utf-8'),
-            autocommit=kw.get('autocommit', True), #自动提交事务
-            maxsize=kw.get('maxsize', 10),  #最大线程
-            minsize=kw.get('minsize', 1),
-            loop=loop
-        )
-
-
-@asyncio.coroutine
-def select(sql, args, size = None):
-    logging.log(sql, args)
-    global _pool
-    with (yield from _pool) as conn:
-        cur = yield from conn.cursor(aiomysql.DictCursor)
-        yield from cur.excute(sql.repalce('?', '%s'), args or())
-        if size:
-            rs = yield from cur.fetchmany(size)
-        else:
-            rs = yield from cur.fetchall()
-        yield from cur.close()
-        logging.info('rows returned: %s'% len(rs))
-        return rs
-
-@asyncio.coroutine
-def execute(sql, args):
-    logging.log(sql)
-    with (yield from _pool) as conn:
-        try:
-            cur = yield from conn.cursor()
-            yield from cur.execute(sql.replace('?','%s'), args)
-            affected = cur.rowcount
-            yield from cur.close()
-        except BaseException as e:
-            raise
-        return affected
-
-class User(Model):
-    _table__ = 'users'
-
-    id = IntegerField(primary_key = True)
-    name = StringField()
-
-#创建实例
-user = User(id = 123, name = 'Michael')
-#存入数据库
-user.insert()
-#查询所有对象
-users = User.findAll()
-
-
-class Model(dict, metaclass=ModelMetaclass):
-    def __init__(self, **kw):
-        super(Model, self).__init__()
-
-    def __getattr__(self, key):
