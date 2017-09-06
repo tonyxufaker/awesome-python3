@@ -44,3 +44,5 @@ CREATE TABLE comments(
   PRIMARY KEY (`id`)
 )ENGINE =innodb DEFAULT CHARSET =utf8;
 
+
+
