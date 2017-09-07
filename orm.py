@@ -66,7 +66,7 @@ def create_args_string(num):
     L = []
     for n in range(num):
         L.append('?')
-    return '.'.join(L)
+    return ','.join(L)
 
 async def close_pool():
     logging.info('close database connection pool...')
@@ -182,13 +182,6 @@ class Model(dict, metaclass=ModelMetaclass):
                 setattr(self, key, value)
         return  value
 
-
-    async def find(cls, pk):
-        'find object by primary key.'
-        rs = await select('%s where `%s`=?' % (cls.__select__, cls.__primary_key__), [pk], 1)
-        if len(rs) == 0:
-            return None
-        return cls(**rs[0])
 
 
     @classmethod
